@@ -1,0 +1,90 @@
+﻿@model ListViewModel
+
+<div class="wrapper" style="display: flex; justify-content: space-between;">
+    <div class="bg-white border border-radius box-shadow" style="border-radius: 5px; padding: 10px; width: 30%; display: flex; flex-direction: column; justify-content: space-between;">
+        <table>
+            <thead>
+                <tr>
+                    <th scope="col" style="font-size: 16px;">Task Lists</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var t in Model.Lists)
+                {
+                    <tr class="task-row" onClick="SetList(@t.ListId)">
+                        <td class="task-column" scope="row">@t.ListName</td>
+                        <td class="button-column">
+                            <input type="submit" value="Delete" onClick="DeleteList(@t.ListId)" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div style="width: 100%; justify-content: center">
+            @Html.Partial("_AddNewListForm")
+        </div>
+    </div>
+
+    @if (Model.ListId == 0)
+    {
+        <div class="bg-white border border-radius box-shadow hidden" style="border-radius: 5px; padding: 10px; width: 65%;">
+            <table>
+                <thead>
+                    <tr>
+                        <th scope="col" style="font-size: 16px;">@Model.ListName</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="2">No tasks found</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div style="display: flex; flex-direction: column;">
+                <div>
+                    @foreach (var t in Model.TaskList)
+                    {
+                        <div>
+                            <td class="task-column" scope="row">
+                            <td class="button-column" style="width: 20px">
+                                <input type="submit" value="Delete" onClick="DeleteTask(@t.Id)" />
+                            </td>
+                        </div>
+                    }
+                </div>
+                <div style="margin-top: 10px;">
+                    @Html.Partial("_AddNewItemForm")
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="bg-white border border-radius box-shadow" style="border-radius: 5px; padding: 10px; width: 65%; display: flex; flex-direction: column; justify-content: space-between;">
+            <table>
+                <thead>
+                    <tr>
+                        <th scope="col" style="font-size: 16px;">@Model.ListName</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model.TaskList)
+                    {
+                        <tr>
+                            <td class="task-column" scope="row">
+                                <input type="checkbox" id="task-@t.Id" @(t.IsComplete ? "checked" : "") onclick="ToggleTaskCompletion(@t.Id, this.checked)">
+                                <label for="task-@t.Id" @(t.IsComplete ? "class='completed-task'" : "")> @t.TaskName</label>
+                            </td>
+                            <td class="button-column" style="width: 20px">
+                                <input type="submit" value="Delete" onClick="DeleteTask(@t.Id)" />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <div style="width: 100%; justify-content: center">
+                @Html.Partial("_AddNewItemForm")
+            </div>
+        </div>
+    }
+</div>
