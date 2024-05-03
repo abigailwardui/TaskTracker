@@ -28,7 +28,6 @@ namespace WebApplication1.Controllers
                 TaskList = tasks,
                 ListName = listName,
                 ListId = listId
-                // You can add other properties initialization here if needed
             };
 
             return View(viewModel);
@@ -101,30 +100,24 @@ namespace WebApplication1.Controllers
                     using (var command = connection.CreateCommand())
                     {
                         connection.Open();
-
-                        // Prepare the SQL query
                         command.CommandText = "INSERT INTO Tasks (Task, List_Id, IsCompleted) VALUES (@Task, @ListId, @IsCompleted)";
                         command.Parameters.AddWithValue("@Task", task.TaskName);
                         command.Parameters.AddWithValue("@ListId", task.ListId);
                         command.Parameters.AddWithValue("@IsCompleted", 0);
 
-                        // Execute the SQL command
                         command.ExecuteNonQuery();
                     }
                 }
-
-                // Return a JSON response indicating success
                 return Json(new { success = true });
             }
             else
             {
-                // If the model state is not valid, return an error message
                 return BadRequest(ModelState);
             }
         }
 
         [HttpPost]
-        public IActionResult DeleteTask(int id) // Accepting taskId as parameter
+        public IActionResult DeleteTask(int id)
         {
             try
             {
@@ -133,17 +126,16 @@ namespace WebApplication1.Controllers
                     using (var deleteCmd = connection.CreateCommand())
                     {
                         connection.Open();
-                        deleteCmd.CommandText = $"DELETE FROM Tasks WHERE Id = @id"; // Delete task with given Id
-                        deleteCmd.Parameters.AddWithValue("@id", id); // Parameterized query to prevent SQL injection
+                        deleteCmd.CommandText = $"DELETE FROM Tasks WHERE Id = @id";
+                        deleteCmd.Parameters.AddWithValue("@id", id);
                         deleteCmd.ExecuteNonQuery();
                     }
                 }
 
-                return Ok(); // Return OK if deletion is successful
+                return Ok();
             }
             catch (Exception ex)
             {
-                // Log the error or handle it appropriately
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }

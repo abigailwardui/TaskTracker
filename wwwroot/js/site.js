@@ -1,12 +1,12 @@
 ﻿function DeleteTask(taskId) {
     $.ajax({
-        url: '/List/DeleteTask', // URL to target the DeleteTask action in ListController
+        url: '/List/DeleteTask',
         type: 'POST',
         data: {
-            id: taskId // Sending taskId as the parameter
+            id: taskId
         },
         success: function () {
-            window.location.reload(); // Reload the page after successful deletion
+            window.location.reload();
         }
     });
 }
@@ -54,12 +54,9 @@ function addTask() {
         type: 'POST',
         data: formData,
         success: function (response) {
-            // Check if the operation was successful
             if (response.success) {
-                // Reload the current page to refresh the view
                 location.reload();
             } else {
-                // Handle error
                 console.error("Error adding task");
             }
         },
@@ -69,7 +66,6 @@ function addTask() {
     });
 }
 
-// Event listener for the "Add Task" button
 $(document).ready(function () {
     $('#addTaskButton').click(function () {
         addTask();
@@ -83,12 +79,9 @@ function addList() {
         type: 'POST',
         data: formData,
         success: function (response) {
-            // Check if the operation was successful
             if (response.success) {
-                // Reload the current page to refresh the view
                 location.reload();
             } else {
-                // Handle error
                 console.error("Error adding task");
             }
         },
@@ -98,7 +91,6 @@ function addList() {
     });
 }
 
-// Event listener for the "Add List" button
 $(document).ready(function () {
     $('#addListButton').click(function () {
         addList();

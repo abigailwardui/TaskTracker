@@ -32,15 +32,24 @@ namespace WebApplication1.Controllers
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                using (var tableCmd = connection.CreateCommand())
+                connection.Open();
+
+                using (var tasksCmd = connection.CreateCommand())
                 {
-                    connection.Open();
-                    tableCmd.CommandText = $"DELETE from Lists WHERE Id = '{id}'; DELETE FROM Tasks WHERE Id = '{id}'";
-                    tableCmd.ExecuteNonQuery();
+                    tasksCmd.CommandText = $"DELETE FROM Tasks WHERE List_Id = '{id}'";
+                    tasksCmd.ExecuteNonQuery();
+                }
+
+                using (var listCmd = connection.CreateCommand())
+                {
+                    listCmd.CommandText = $"DELETE FROM Lists WHERE Id = '{id}'";
+                    listCmd.ExecuteNonQuery();
                 }
             }
+
             return Json(new { });
         }
+
 
         [Authorize]
         public IActionResult Index()
