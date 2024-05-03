@@ -47,7 +47,6 @@ function ToggleTaskCompletion(taskId, isChecked) {
     });
 }
 
-// Function to add a task
 function addTask() {
     var formData = $('#addTaskForm').serialize();
     $.ajax({
@@ -74,5 +73,34 @@ function addTask() {
 $(document).ready(function () {
     $('#addTaskButton').click(function () {
         addTask();
+    });
+});
+
+function addList() {
+    var formData = $('#addListForm').serialize();
+    $.ajax({
+        url: '/Home/AddList',
+        type: 'POST',
+        data: formData,
+        success: function (response) {
+            // Check if the operation was successful
+            if (response.success) {
+                // Reload the current page to refresh the view
+                location.reload();
+            } else {
+                // Handle error
+                console.error("Error adding task");
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error(error);
+        }
+    });
+}
+
+// Event listener for the "Add List" button
+$(document).ready(function () {
+    $('#addListButton').click(function () {
+        addList();
     });
 });

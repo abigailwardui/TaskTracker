@@ -1,11 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Serialization;
-using NuGet.Protocol.Plugins;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Diagnostics;
-using System.Threading.Tasks;
+using System.Security.Claims;
 using WebApplication1.Models;
 using WebApplication1.Models.ViewModels;
 using WebApplication1.Services;
@@ -14,7 +11,6 @@ namespace WebApplication1.Controllers
 {
     public class HomeController : Controller
     {
-
         string connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog = WebApplication1; Integrated Security = True; Connect Timeout = 30; Encrypt=False;TrustServerCertificate=False;ApplicationIntent = ReadWrite; MultiSubnetFailover=False";
 
         private readonly TaskService _taskService;
@@ -39,7 +35,7 @@ namespace WebApplication1.Controllers
                 using (var tableCmd = connection.CreateCommand())
                 {
                     connection.Open();
-                    tableCmd.CommandText = $"DELETE from TaskLists WHERE LIST_ID = '{id}'; DELETE FROM ListItems WHERE LIST_ID = '{id}'";
+                    tableCmd.CommandText = $"DELETE from Lists WHERE Id = '{id}'; DELETE FROM Tasks WHERE Id = '{id}'";
                     tableCmd.ExecuteNonQuery();
                 }
             }
@@ -47,33 +43,19 @@ namespace WebApplication1.Controllers
         }
 
         [Authorize]
-        public IActionResult Index(int? id)
+        public IActionResult Index()
         {
-            HomeViewModel viewModel = new HomeViewModel();
-
-            viewModel.Lists = RetrieveUserLists(User.Identity?.Name);
-
-            // Ensure viewModel.Lists is not null before further processing
-            if (viewModel.Lists != null)
+            string userId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+            HomeViewModel viewModel = new HomeViewModel
             {
-                if (id.HasValue)
-                {
-                    // This line assigns selectedList, but it's not used in the code
-                    var selectedList = viewModel.Lists.FirstOrDefault(l => l.ListId == id.Value);
-                }
-                else
-                {
-                    //viewModel.TaskList = new List<TaskModel>();
-                }
-            }
-
+                UserId = userId,
+                Lists = RetrieveUserLists(userId)
+            };
             return View(viewModel);
         }
 
-
         internal List<ListModel> RetrieveUserLists(string userName)
         {
-
             List<ListModel> lists = new List<ListModel>();
 
             using (SqlConnection connection = new SqlConnection(connectionString))
@@ -81,7 +63,7 @@ namespace WebApplication1.Controllers
                 using (var listCmd = connection.CreateCommand())
                 {
                     connection.Open();
-                    listCmd.CommandText = $"SELECT dbo.Lists.Id, dbo.Lists.Name FROM dbo.Lists JOIN dbo.AspNetUsers ON dbo.Lists.User_Id = dbo.AspNetUsers.Id WHERE dbo.AspNetUsers.UserName = '{userName}'";
+                    listCmd.CommandText = $"SELECT dbo.Lists.Id, dbo.Lists.Name FROM dbo.Lists JOIN dbo.AspNetUsers ON dbo.Lists.User_Id = dbo.AspNetUsers.Id WHERE dbo.AspNetUsers.Id = '{userName}'";
 
                     using (var reader = listCmd.ExecuteReader())
                     {
@@ -97,31 +79,33 @@ namespace WebApplication1.Controllers
                     }
                 }
             }
-
             return lists;
         }
 
-        public RedirectResult AddList(ListModel list)
+        [HttpPost]
+        public IActionResult AddList(ListModel list)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            if (ModelState.IsValid)
             {
-                using (var tableCmd = connection.CreateCommand())
+                using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    connection.Open();
-                    tableCmd.CommandText = $"INSERT INTO TaskLists (USER_ID, LIST_NAME) VALUES (1, '{list.ListName}')";
+                    using (var command = connection.CreateCommand())
+                    {
+                        connection.Open();
 
-                    try
-                    {
-                        tableCmd.ExecuteNonQuery();
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
+                        command.CommandText = "INSERT INTO Lists (Name, User_Id) VALUES (@Name, @UserId)";
+                        command.Parameters.AddWithValue("@Name", list.ListName);
+                        command.Parameters.AddWithValue("@UserId", list.UserId);
+
+                        command.ExecuteNonQuery();
                     }
                 }
+                return Json(new { success = true });
             }
-            return Redirect("http://localhost:5161/");
+            else
+            {
+                return BadRequest(ModelState);
+            }
         }
-
     }
 }
