@@ -32,21 +32,6 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost]
-        public JsonResult DeleteTask(int id)
-        {
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                using (var tableCmd = connection.CreateCommand())
-                {
-                    connection.Open();
-                    tableCmd.CommandText = $"DELETE from ListItems WHERE ITEM_ID = '{id}'";
-                    tableCmd.ExecuteNonQuery();
-                }
-            }
-            return Json(new { });
-        }
-
-        [HttpPost]
         public JsonResult DeleteList(int id)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
@@ -68,17 +53,23 @@ namespace WebApplication1.Controllers
 
             viewModel.Lists = RetrieveUserLists(User.Identity?.Name);
 
-            if (id.HasValue)
+            // Ensure viewModel.Lists is not null before further processing
+            if (viewModel.Lists != null)
             {
-                var selectedList = viewModel.Lists.FirstOrDefault(l => l.ListId == id.Value);
-            }
-            else
-            {
-                //viewModel.TaskList = new List<TaskModel>();
+                if (id.HasValue)
+                {
+                    // This line assigns selectedList, but it's not used in the code
+                    var selectedList = viewModel.Lists.FirstOrDefault(l => l.ListId == id.Value);
+                }
+                else
+                {
+                    //viewModel.TaskList = new List<TaskModel>();
+                }
             }
 
             return View(viewModel);
         }
+
 
         internal List<ListModel> RetrieveUserLists(string userName)
         {
@@ -108,67 +99,6 @@ namespace WebApplication1.Controllers
             }
 
             return lists;
-        }
-
-        internal List<TaskModel> RetrieveListItems(int listId)
-        {
-            List<TaskModel> taskList = new();
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                using (var tableCmd = connection.CreateCommand())
-                {
-                    connection.Open();
-                    tableCmd.CommandText = $"SELECT * FROM ListItems WHERE LIST_ID = '{listId}'";
-
-                    using (var reader = tableCmd.ExecuteReader())
-                    {
-                        if (reader.HasRows)
-                        {
-                            while (reader.Read())
-                            {
-                                taskList.Add(
-                                    new TaskModel
-                                    {
-                                        Id = reader.GetInt32(0),
-                                        ListId = reader.GetInt32(1),
-                                        TaskName = reader.GetString(2),
-                                        IsComplete = reader.GetBoolean(3)
-                                    });
-                            }
-                        }
-                        else
-                        {
-                            return taskList;
-                        }
-                    }
-                }
-            }
-            return taskList;
-        }
-
-        public RedirectResult AddTask(TaskModel task, int listId)
-        {
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                using (var tableCmd = connection.CreateCommand())
-                {
-                    connection.Open();
-                    tableCmd.CommandText = $"INSERT INTO ListItems (LIST_ID, ITEM_NAME, COMPLETED) VALUES (@ListId, @TaskName, 0)";
-                    tableCmd.Parameters.AddWithValue("@ListId", listId);
-                    tableCmd.Parameters.AddWithValue("@TaskName", task.TaskName);
-
-                    try
-                    {
-                        tableCmd.ExecuteNonQuery();
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                    }
-                }
-            }
-            return Redirect("/?id=" + listId);
         }
 
         public RedirectResult AddList(ListModel list)

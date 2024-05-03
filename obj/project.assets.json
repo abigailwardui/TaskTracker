@@ -8577,11 +8577,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\abby\\source\\code stuff\\WebApplication1\\WebApplication1.csproj",
+      "projectUniqueName": "C:\\Programs\\WebApplication1\\WebApplication1.csproj",
       "projectName": "WebApplication1",
-      "projectPath": "C:\\Users\\abby\\source\\code stuff\\WebApplication1\\WebApplication1.csproj",
+      "projectPath": "C:\\Programs\\WebApplication1\\WebApplication1.csproj",
       "packagesPath": "C:\\Users\\abby\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\abby\\source\\code stuff\\WebApplication1\\obj\\",
+      "outputPath": "C:\\Programs\\WebApplication1\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\abby\\AppData\\Roaming\\NuGet\\NuGet.Config",

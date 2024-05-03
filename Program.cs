@@ -1,8 +1,7 @@
-using WebApplication1.Services;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using WebApplication1.Data;
 using WebApplication1.Areas.Identity.Data;
+using WebApplication1.Data;
+using WebApplication1.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("WebApplication1ContextConnection") ?? throw new InvalidOperationException("Connection string 'WebApplication1ContextConnection' not found.");
@@ -33,5 +32,12 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
+    name: "RetrieveListItems",
+    pattern: "List/RetrieveListItems/{listId}",
+    defaults: new { controller = "List", action = "RetrieveListItems" });
+
 app.MapRazorPages();
+
 app.Run();

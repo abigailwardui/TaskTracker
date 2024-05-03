@@ -1,12 +1,12 @@
-﻿function DeleteTask(i) {
+﻿function DeleteTask(taskId) {
     $.ajax({
-        url: 'Home/DeleteTask',
+        url: '/List/DeleteTask', // URL to target the DeleteTask action in ListController
         type: 'POST',
         data: {
-            id: i
+            id: taskId // Sending taskId as the parameter
         },
         success: function () {
-            window.location.reload();
+            window.location.reload(); // Reload the page after successful deletion
         }
     });
 }
@@ -46,3 +46,33 @@ function ToggleTaskCompletion(taskId, isChecked) {
         }
     });
 }
+
+// Function to add a task
+function addTask() {
+    var formData = $('#addTaskForm').serialize();
+    $.ajax({
+        url: '/List/AddTask',
+        type: 'POST',
+        data: formData,
+        success: function (response) {
+            // Check if the operation was successful
+            if (response.success) {
+                // Reload the current page to refresh the view
+                location.reload();
+            } else {
+                // Handle error
+                console.error("Error adding task");
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error(error);
+        }
+    });
+}
+
+// Event listener for the "Add Task" button
+$(document).ready(function () {
+    $('#addTaskButton').click(function () {
+        addTask();
+    });
+});

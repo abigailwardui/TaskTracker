@@ -1,0 +1,32 @@
+﻿@model WebApplication1.Models.ViewModels.ListViewModel
+
+<div class="wrapper" style="display: flex; justify-content: space-between;">
+    <div class="bg-white border border-radius box-shadow" style="border-radius: 5px; padding: 10px; width: 30%; display: flex; flex-direction: column; justify-content: space-between;">
+        <table>
+            <thead>
+                <tr>
+                    <th scope="col" style="font-size: 16px;">@Model.ListName</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var task in Model.TaskList)
+                {
+                    <tr class="task-row">
+                        <td class="task-column" scope="row">@task.TaskName</td>
+                        <td class="button-column">
+                            <input type="submit" value="Delete" onClick="DeleteTask(@task.Id)" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div>
+        <form id="addTaskForm">
+            <input type="hidden" name="ListId" value="@Model.ListId" />
+            <label for="taskName">Task Name:</label>
+            <input type="text" id="taskName" name="TaskName" required />
+            <button type="button" id="addTaskButton">Add Task</button>
+        </form>
+    </div>
+</div>

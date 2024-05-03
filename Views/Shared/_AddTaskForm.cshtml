@@ -1,0 +1,15 @@
+﻿@model WebApplication1.Models.TaskModel
+
+@if (Model != null)
+{
+    <form method="post" action="@Url.Action("AddTask", "List")">
+        <input type="hidden" name="ListId" value="@Model.ListId" />
+        <label for="taskName">Task Name:</label>
+        <input type="text" id="taskName" name="Task" required />
+        <button type="submit">Add Task</button>
+    </form>
+}
+else
+{
+    <p>Unable to render form: TaskModel is null.</p>
+}

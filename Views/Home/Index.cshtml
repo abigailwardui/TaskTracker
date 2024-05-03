@@ -11,17 +11,16 @@
             <tbody>
                 @foreach (var t in Model.Lists)
                 {
-                    <tr class="task-row" onClick="SetList(@t.ListId)">
-                        <td class="task-column" scope="row">@t.ListName</td>
+                    <tr class="task-row">
+                        <td class="task-column" scope="row">
+                            <a href="@Url.Action("RetrieveListItems", "List", new { ListId = t.ListId })">@t.ListName</a>
+                        </td>
                         <td class="button-column">
-                            <input type="submit" value="Delete" onClick="DeleteList(@t.ListId)" />
+                            <input type="submit" value="Delete" onclick="DeleteList(@t.ListId)" />
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
-        @*<div style="width: 100%; justify-content: center">
-            @Html.Partial("_AddNewListForm")
-        </div>*@
     </div>
 </div>

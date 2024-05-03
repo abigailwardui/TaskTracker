@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Areas.Identity.Data;
+using WebApplication1.Models;
 
 namespace WebApplication1.Data;
 
@@ -11,6 +12,8 @@ public class WebApplication1Context : IdentityDbContext<WebApplication1User>
         : base(options)
     {
     }
+
+    public DbSet<TaskModel> Tasks { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
