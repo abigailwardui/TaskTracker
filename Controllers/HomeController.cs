@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Serialization;
 using NuGet.Protocol.Plugins;
@@ -14,7 +15,7 @@ namespace WebApplication1.Controllers
     public class HomeController : Controller
     {
 
-        string connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog = Test; Integrated Security = True; Connect Timeout = 30; Encrypt=False;TrustServerCertificate=False;ApplicationIntent = ReadWrite; MultiSubnetFailover=False";
+        string connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog = WebApplication1; Integrated Security = True; Connect Timeout = 30; Encrypt=False;TrustServerCertificate=False;ApplicationIntent = ReadWrite; MultiSubnetFailover=False";
 
         private readonly TaskService _taskService;
 
@@ -60,45 +61,36 @@ namespace WebApplication1.Controllers
             return Json(new { });
         }
 
+        [Authorize]
         public IActionResult Index(int? id)
         {
-            ListViewModel viewModel = new ListViewModel();
+            HomeViewModel viewModel = new HomeViewModel();
 
-            viewModel.Lists = RetrieveUserLists();
-
-            // Clear the ListName property when no list is selected
-            viewModel.ListName = null;
+            viewModel.Lists = RetrieveUserLists(User.Identity?.Name);
 
             if (id.HasValue)
             {
                 var selectedList = viewModel.Lists.FirstOrDefault(l => l.ListId == id.Value);
-
-                if (selectedList != null)
-                {
-                    viewModel.ListName = selectedList.ListName;
-                }
-
-                viewModel.TaskList = RetrieveListItems(id.Value);
-                viewModel.ListId = id.Value;
             }
             else
             {
-                viewModel.TaskList = new List<TaskModel>();
+                //viewModel.TaskList = new List<TaskModel>();
             }
 
             return View(viewModel);
         }
 
-        internal List<ListModel> RetrieveUserLists()
+        internal List<ListModel> RetrieveUserLists(string userName)
         {
-            List<ListModel> lists = new();
+
+            List<ListModel> lists = new List<ListModel>();
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 using (var listCmd = connection.CreateCommand())
                 {
                     connection.Open();
-                    listCmd.CommandText = $"SELECT LIST_ID, USER_ID, LIST_NAME FROM dbo.TaskLists WHERE USER_ID = 1";
+                    listCmd.CommandText = $"SELECT dbo.Lists.Id, dbo.Lists.Name FROM dbo.Lists JOIN dbo.AspNetUsers ON dbo.Lists.User_Id = dbo.AspNetUsers.Id WHERE dbo.AspNetUsers.UserName = '{userName}'";
 
                     using (var reader = listCmd.ExecuteReader())
                     {
@@ -108,8 +100,7 @@ namespace WebApplication1.Controllers
                                 new ListModel
                                 {
                                     ListId = reader.GetInt32(0),
-                                    UserId = reader.GetInt32(1),
-                                    ListName = reader.GetString(2)
+                                    ListName = reader.GetString(1)
                                 });
                         }
                     }
@@ -156,7 +147,6 @@ namespace WebApplication1.Controllers
             return taskList;
         }
 
-
         public RedirectResult AddTask(TaskModel task, int listId)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
@@ -180,7 +170,6 @@ namespace WebApplication1.Controllers
             }
             return Redirect("/?id=" + listId);
         }
-
 
         public RedirectResult AddList(ListModel list)
         {

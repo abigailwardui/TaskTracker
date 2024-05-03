@@ -6,6 +6,6 @@
 
         public int UserId { get; set; }
 
-        public string ListName { get; set; } 
+        public string ListName { get; set; }
     }
 }
